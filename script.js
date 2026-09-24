@@ -5,8 +5,8 @@
 
 // ESCREVA AQUI O NOME DO PROJETO
 const projeto = {
-    nome: "NOME DO PROJETO",
-    subtitulo: "Descrição curta do projeto",
+    nome: "CIRCUITO N",
+    subtitulo: "Este é um projeto que está em andamentto e tem como principal objetivo apresentar na feira de porjetos da USF no câmpus de Itatiba",
     ano: "2026",
 
     // ==================================================
