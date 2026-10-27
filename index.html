@@ -1,571 +1,977 @@
-
 <!DOCTYPE html>
-<html lang="pt-BR">
-
+<html lang="pt-BR" class="scroll-smooth">
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoramento Termo-Higrométrico | Engenharia Elétrica</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 
-    <title id="tituloPagina">Projeto — Feira Acadêmica</title>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#0B0F17',
+                            card: '#131B2E',
+                            border: '#1E293B',
+                            accent: '#10B981', // Emerald
+                            cyan: '#06B6D4',   // Cyan
+                            emerald: '#10B981',
+                            amber: '#F59E0B',
+                            rose: '#F43F5E'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
 
-    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background-color: #0B0F17;
+            color: #E2E8F0;
+            font-family: 'Inter', sans-serif;
+        }
 
+        /* Glassmorphic utilities */
+        .glass-panel {
+            background: rgba(19, 27, 46, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-panel-hover:hover {
+            border-color: rgba(16, 185, 129, 0.4);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0B0F17;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1E293B;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #10B981;
+        }
+
+        /* OLED Display Pixel Simulation */
+        .oled-screen {
+            background-color: #000000;
+            border: 4px solid #334155;
+            box-shadow: inset 0 0 10px rgba(6, 182, 212, 0.2);
+            font-family: 'JetBrains Mono', monospace;
+            color: #06B6D4;
+        }
+
+        /* LED Glow Effects */
+        .led-glow-green {
+            box-shadow: 0 0 12px #10B981, inset 0 0 4px #A7F3D0;
+        }
+        .led-glow-yellow {
+            box-shadow: 0 0 12px #F59E0B, inset 0 0 4px #FDE68A;
+        }
+        .led-glow-red {
+            box-shadow: 0 0 12px #F43F5E, inset 0 0 4px #FECDD3;
+        }
+    </style>
 </head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-brand-accent selection:text-black">
 
-
-<body>
-
-    <!-- ==================================================
-         CABEÇALHO
-    =================================================== -->
-
-    <header class="header">
-
-        <div class="header-container">
-
-            <div class="brand">
-
-                <div class="brand-icon">
-                    ⚡
+    <!-- BARRA DE NAVEGAÇÃO -->
+    <nav class="fixed top-0 left-0 w-full z-50 glass-panel border-b border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <a href="#" class="flex items-center gap-3 group">
+                <div class="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500/20 transition">
+                    <i data-lucide="cpu" class="w-6 h-6"></i>
                 </div>
-
-                <div>
-
-                    <span class="brand-small">
-                        FEIRA DE PROJETOS
-                    </span>
-
-                    <strong>
-                        ENGENHARIA ELÉTRICA
-                    </strong>
-
+                <div class="flex flex-col">
+                    <span class="font-bold text-base tracking-wide text-white group-hover:text-emerald-400 transition">ESTUFA<span class="text-emerald-400">.IOT</span></span>
+                    <span class="text-[10px] text-slate-400 -mt-1 font-mono">ENG. ELÉTRICA</span>
                 </div>
+            </a>
 
+            <!-- Menu Desktop -->
+            <div class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-300">
+                <a href="#proposta" class="hover:text-emerald-400 transition">Proposta</a>
+                <a href="#circuito" class="hover:text-emerald-400 transition">Arquitetura</a>
+                <a href="#simulador" class="hover:text-emerald-400 transition">Simulador & Fluxograma</a>
+                <a href="#componentes" class="hover:text-emerald-400 transition">Componentes</a>
+                <a href="#equipe" class="hover:text-emerald-400 transition">Equipe</a>
+                <a href="#demonstracao" class="hover:text-emerald-400 transition">Vídeo</a>
+                <a href="#codigo" class="px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20 transition flex items-center gap-2">
+                    <i data-lucide="code" class="w-4 h-4"></i> Firmware C++
+                </a>
             </div>
 
-
-            <nav id="menu">
-
-                <a href="#inicio">Início</a>
-
-                <a href="#projeto">Projeto</a>
-
-                <a href="#funcionamento">Funcionamento</a>
-
-                <a href="#resultados">Resultados</a>
-
-            </nav>
-
-
-            <button id="menuButton">
-                ☰
+            <!-- Botão Mobile -->
+            <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800">
+                <i data-lucide="menu" class="w-6 h-6"></i>
             </button>
-
         </div>
 
-
-        <!-- ==================================================
-             EQUIPE
-        =================================================== -->
-
-        <div class="team-header">
-
-            <span class="team-label">
-                EQUIPE
-            </span>
-
-            <div id="integrantes">
-                <!--
-                    OS NOMES SERÃO INSERIDOS AUTOMATICAMENTE
-                    PELO JAVASCRIPT.
-                -->
-            </div>
-
+        <!-- Menu Dropdown Mobile -->
+        <div id="mobile-menu" class="hidden md:hidden glass-panel border-b border-slate-800 px-4 pt-2 pb-4 space-y-2 text-sm font-medium">
+            <a href="#proposta" class="block py-2 text-slate-300 hover:text-emerald-400">Proposta</a>
+            <a href="#circuito" class="block py-2 text-slate-300 hover:text-emerald-400">Arquitetura</a>
+            <a href="#simulador" class="block py-2 text-slate-300 hover:text-emerald-400">Simulador & Fluxograma</a>
+            <a href="#componentes" class="block py-2 text-slate-300 hover:text-emerald-400">Componentes</a>
+            <a href="#equipe" class="block py-2 text-slate-300 hover:text-emerald-400">Equipe</a>
+            <a href="#demonstracao" class="block py-2 text-slate-300 hover:text-emerald-400">Vídeo</a>
+            <a href="#codigo" class="block py-2 text-emerald-400">Firmware C++</a>
         </div>
+    </nav>
 
-    </header>
+    <main class="flex-grow pt-16">
 
-
-
-    <main>
-
-        <!-- ==================================================
-             INÍCIO
-        =================================================== -->
-
-        <section class="hero" id="inicio">
-
-            <div class="hero-background"></div>
-
-            <div class="hero-content">
-
-                <span class="hero-label">
-                    PROJETO ACADÊMICO
-                </span>
-
-                <h1 id="nomeProjeto">
-                    NOME DO PROJETO
-                </h1>
-
-                <p id="subtituloProjeto">
-                    Descrição curta do projeto.
-                </p>
-
-
-                <div class="hero-buttons">
-
-                    <a href="#projeto" class="button button-primary">
-                        Conhecer o projeto
-                    </a>
-
-                    <a href="#funcionamento" class="button button-outline">
-                        Como funciona
-                    </a>
-
+        <!-- HERO HEADER -->
+        <section class="relative py-20 lg:py-28 overflow-hidden border-b border-slate-800/50">
+            <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(16,185,129,0.15),rgba(255,255,255,0))]"></div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="text-center max-w-3xl mx-auto space-y-6">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono font-semibold tracking-wider uppercase">
+                        <i data-lucide="microchip" class="w-3.5 h-3.5"></i> Projeto de Sistemas Embarcados
+                    </div>
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-tight">
+                        Sistema de Monitoramento Termo-Higrométrico Dinâmico
+                    </h1>
+                    <p class="text-slate-400 text-base sm:text-lg leading-relaxed">
+                        Análise contínua em tempo real de microclimas para estufas com carimbo temporal via RTC, exibição gráfica em tela OLED e diagnóstico visual com sinalização em estado sólido.
+                    </p>
+                    <div class="pt-4 flex flex-wrap justify-center gap-4">
+                        <a href="#simulador" class="px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold shadow-lg shadow-emerald-500/20 transition flex items-center gap-2">
+                            <i data-lucide="sliders" class="w-5 h-5"></i> Testar Simulador Interativo
+                        </a>
+                        <a href="#proposta" class="px-6 py-3 rounded-xl glass-panel hover:bg-slate-800/80 text-slate-200 font-semibold transition border border-slate-700 flex items-center gap-2">
+                            <i data-lucide="file-text" class="w-5 h-5"></i> Ler Especificações
+                        </a>
+                    </div>
                 </div>
-
             </div>
-
-
-            <div class="scroll-indicator">
-                ↓
-            </div>
-
         </section>
 
-
-
-        <!-- ==================================================
-             SOBRE O PROJETO
-        =================================================== -->
-
-        <section class="section" id="projeto">
-
-            <div class="container">
-
-                <div class="section-title">
-
-                    <span>
-                        01 / PROJETO
-                    </span>
-
-                    <h2>
-                        Sobre o projeto
-                    </h2>
-
-                </div>
-
-
-                <div class="project-grid">
-
-                    <div class="project-image">
-
-                        <!--
-                            COLOQUE SUA FOTO AQUI:
-
-                            <img src="imagens/projeto.jpg"
-                                 alt="Foto do projeto">
-                        -->
-
-                        <div class="image-placeholder">
-
-                            <span>IMAGEM DO PROJETO</span>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="project-description">
-
-                        <span class="small-title">
-                            VISÃO GERAL
-                        </span>
-
-                        <h3>
-                            Apresente aqui o seu projeto
-                        </h3>
-
-                        <p>
-                            Escreva aqui uma explicação geral sobre
-                            o projeto desenvolvido pela equipe.
-                        </p>
-
-                        <p>
-                            Explique de forma objetiva o que foi
-                            desenvolvido, qual é sua finalidade e
-                            qual problema o projeto pretende abordar.
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- ==================================================
-             PROBLEMA E OBJETIVO
-        =================================================== -->
-
-        <section class="dark-section">
-
-            <div class="container">
-
-                <div class="cards-grid">
-
-
-                    <article class="info-card">
-
-                        <span>
-                            02 / PROBLEMA
-                        </span>
-
-                        <h3>
-                            Qual problema estamos resolvendo?
-                        </h3>
-
-                        <p>
-                            Descreva aqui o problema ou necessidade
-                            que motivou o desenvolvimento do projeto.
-                        </p>
-
-                    </article>
-
-
-                    <article class="info-card">
-
-                        <span>
-                            03 / OBJETIVO
-                        </span>
-
-                        <h3>
-                            O que queremos alcançar?
-                        </h3>
-
-                        <p>
-                            Descreva aqui o objetivo principal do
-                            projeto e os resultados esperados.
-                        </p>
-
-                    </article>
-
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- ==================================================
-             FUNCIONAMENTO
-        =================================================== -->
-
-        <section class="section" id="funcionamento">
-
-            <div class="container">
-
-                <div class="section-title">
-
-                    <span>
-                        04 / FUNCIONAMENTO
-                    </span>
-
-                    <h2>
-                        Como funciona
-                    </h2>
-
-                </div>
-
-
-                <div class="flow">
-
-                    <div class="flow-item">
-
-                        <div class="flow-number">
-                            01
-                        </div>
-
-                        <h3>
-                            Entrada
-                        </h3>
-
-                        <p>
-                            Descreva aqui a entrada do sistema.
-                        </p>
-
-                    </div>
-
-
-                    <div class="flow-arrow">
-                        →
-                    </div>
-
-
-                    <div class="flow-item">
-
-                        <div class="flow-number">
-                            02
-                        </div>
-
-                        <h3>
-                            Processamento
-                        </h3>
-
-                        <p>
-                            Descreva aqui o processamento realizado.
-                        </p>
-
-                    </div>
-
-
-                    <div class="flow-arrow">
-                        →
-                    </div>
-
-
-                    <div class="flow-item">
-
-                        <div class="flow-number">
-                            03
-                        </div>
-
-                        <h3>
-                            Saída
-                        </h3>
-
-                        <p>
-                            Descreva aqui o resultado produzido.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <!-- DIAGRAMA -->
-
-                <div class="diagram">
-
-                    <!--
-                        COLOQUE SEU DIAGRAMA AQUI
-
-                        <img src="imagens/diagrama.jpg"
-                             alt="Diagrama do projeto">
-                    -->
-
-                    <span>
-                        DIAGRAMA DO PROJETO
-                    </span>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- ==================================================
-             COMPONENTES / TECNOLOGIAS
-        =================================================== -->
-
-        <section class="gray-section">
-
-            <div class="container">
-
-                <div class="section-title">
-
-                    <span>
-                        05 / TECNOLOGIA
-                    </span>
-
-                    <h2>
-                        Componentes e recursos
-                    </h2>
-
-                </div>
-
-
-                <div class="technology-grid">
-
-                    <div class="technology">
-                        <strong>01</strong>
-                        <h3>Componente</h3>
-                        <p>Descrição do componente utilizado.</p>
-                    </div>
-
-
-                    <div class="technology">
-                        <strong>02</strong>
-                        <h3>Componente</h3>
-                        <p>Descrição do componente utilizado.</p>
-                    </div>
-
-
-                    <div class="technology">
-                        <strong>03</strong>
-                        <h3>Componente</h3>
-                        <p>Descrição do componente utilizado.</p>
-                    </div>
-
-
-                    <div class="technology">
-                        <strong>04</strong>
-                        <h3>Software</h3>
-                        <p>Descrição do software utilizado.</p>
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- ==================================================
-             RESULTADOS
-        =================================================== -->
-
-        <section class="section" id="resultados">
-
-            <div class="container">
-
-                <div class="section-title">
-
-                    <span>
-                        06 / RESULTADOS
-                    </span>
-
-                    <h2>
-                        Resultados obtidos
-                    </h2>
-
-                </div>
-
-
-                <div class="results">
-
-                    <div>
-
-                        <p>
-                            Apresente aqui os resultados obtidos
-                            durante o desenvolvimento e os testes
-                            realizados pela equipe.
-                        </p>
-
-                        <p>
-                            Utilize este espaço para apresentar
-                            medições, dados, gráficos ou observações.
-                        </p>
-
-                    </div>
-
-
-                    <div class="result-box">
-
-                        <span>
-                            PRINCIPAL RESULTADO
-                        </span>
-
-                        <strong>
-                            ---
-                        </strong>
-
-                        <p>
-                            Insira aqui uma informação importante
-                            sobre o resultado do projeto.
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- ==================================================
-             CONCLUSÃO
-        =================================================== -->
-
-        <section class="conclusion">
-
-            <div class="container">
-
-                <span>
-                    07 / CONCLUSÃO
-                </span>
-
-                <h2>
-                    Conclusão
-                </h2>
-
-                <p>
-                    Apresente aqui a conclusão do projeto,
-                    os principais aprendizados da equipe e
-                    possíveis melhorias ou próximos passos.
-                </p>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- ==================================================
-             RODAPÉ
-        =================================================== -->
-
-        <footer>
-
-            <div class="container footer-content">
-
+        <!-- SEÇÃO PROPOSTA DO PROJETO -->
+        <section id="proposta" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
                 <div>
+                    <h2 class="text-xs font-mono text-emerald-400 tracking-wider uppercase">01. Fundamentação</h2>
+                    <p class="text-3xl font-bold text-white mt-1">Proposta Técnica do Projeto</p>
+                </div>
+                <p class="text-slate-400 max-w-md text-sm">
+                    Desenvolvido como projeto integrador no curso de Engenharia Elétrica, focado em instrumentação eletrônica, protocolos de comunicação e controle visual.
+                </p>
+            </div>
 
-                    <span>
-                        FEIRA DE PROJETOS
-                    </span>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-3">
+                    <div class="p-3 w-fit rounded-xl bg-emerald-500/10 text-emerald-400">
+                        <i data-lucide="thermometer" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-white">Controle de Temperatura</h3>
+                    <p class="text-sm text-slate-400">Faixa operacional ideal mantida entre <span class="text-emerald-400 font-mono">18°C e 28°C</span> para mitigação de estresse térmico em culturas sensíveis.</p>
+                </div>
 
-                    <h3 id="nomeProjetoFooter">
-                        Projeto
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-3">
+                    <div class="p-3 w-fit rounded-xl bg-cyan-500/10 text-cyan-400">
+                        <i data-lucide="droplets" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-white">Umidade Relativa (%RH)</h3>
+                    <p class="text-sm text-slate-400">Amostragem dinâmica mantida entre <span class="text-cyan-400 font-mono">50% e 75%</span> de umidade relativa, prevenindo proliferação de fungos ou desidratação.</p>
+                </div>
+
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-3">
+                    <div class="p-3 w-fit rounded-xl bg-purple-500/10 text-purple-400">
+                        <i data-lucide="clock" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-white">Selo Temporal RTC</h3>
+                    <p class="text-sm text-slate-400">Sincronismo exato de data e hora independente de quedas de energia através de cristal TCXO compensado por temperatura.</p>
+                </div>
+            </div>
+
+            <!-- Card Resumo de Metas do Projeto -->
+            <div class="glass-panel p-8 rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900/90 to-brand-card">
+                <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <i data-lucide="target" class="w-5 h-5 text-emerald-400"></i> Objetivos de Engenharia
+                </h3>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+                    <div class="p-4 rounded-xl bg-slate-950/50 border border-slate-800">
+                        <span class="block text-2xl font-extrabold text-emerald-400 font-mono">&lt; 2s</span>
+                        <span class="text-xs text-slate-400">Taxa de Atualização</span>
+                    </div>
+                    <div class="p-4 rounded-xl bg-slate-950/50 border border-slate-800">
+                        <span class="block text-2xl font-extrabold text-cyan-400 font-mono">I²C</span>
+                        <span class="text-xs text-slate-400">Barramento Único (OLED+RTC)</span>
+                    </div>
+                    <div class="p-4 rounded-xl bg-slate-950/50 border border-slate-800">
+                        <span class="block text-2xl font-extrabold text-amber-400 font-mono">3 Níveis</span>
+                        <span class="text-xs text-slate-400">Sinalização de LED</span>
+                    </div>
+                    <div class="p-4 rounded-xl bg-slate-950/50 border border-slate-800">
+                        <span class="block text-2xl font-extrabold text-purple-400 font-mono">5V CC</span>
+                        <span class="text-xs text-slate-400">Baixo Consumo</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO CIRCUITO, ARQUITETURA E FILTROS -->
+        <section id="circuito" class="py-16 bg-slate-950/60 border-y border-slate-800/80">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="mb-12">
+                    <h2 class="text-xs font-mono text-emerald-400 tracking-wider uppercase">02. Topologia do Sistema</h2>
+                    <p class="text-3xl font-bold text-white mt-1">Funcionamento do Circuito & Classificação</p>
+                </div>
+
+                <!-- Abas Filtro de Classificação de Engenharia -->
+                <div class="flex flex-wrap gap-2 mb-8" id="filter-buttons">
+                    <button data-filter="all" class="filter-btn active px-4 py-2 rounded-xl text-sm font-medium bg-emerald-500 text-slate-950 transition">
+                        Todos os Módulos
+                    </button>
+                    <button data-filter="controlador" class="filter-btn px-4 py-2 rounded-xl text-sm font-medium glass-panel text-slate-300 hover:text-white transition">
+                        Controladores (MCU)
+                    </button>
+                    <button data-filter="sensor" class="filter-btn px-4 py-2 rounded-xl text-sm font-medium glass-panel text-slate-300 hover:text-white transition">
+                        Sensores (Entrada)
+                    </button>
+                    <button data-filter="atuador" class="filter-btn px-4 py-2 rounded-xl text-sm font-medium glass-panel text-slate-300 hover:text-white transition">
+                        Atuadores e Exibição (Saída)
+                    </button>
+                </div>
+
+                <!-- Grid de Elementos Classificados -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="circuit-items">
+                    <!-- Arduino ATmega328P -->
+                    <div class="circuit-item controlador glass-panel p-6 rounded-2xl border border-slate-800 transition">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="px-2.5 py-1 rounded-md text-[10px] font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30 uppercase">CONTROLADOR</span>
+                            <i data-lucide="cpu" class="w-5 h-5 text-purple-400"></i>
+                        </div>
+                        <h4 class="text-lg font-bold text-white mb-2">Microcontrolador ATmega328P</h4>
+                        <p class="text-sm text-slate-400">Processa os dados seriais do sensor DHT, requisita informações de hora via barramento I²C e gerencia as saídas lógicas.</p>
+                    </div>
+
+                    <!-- Sensor DHT11 / DHT22 -->
+                    <div class="circuit-item sensor glass-panel p-6 rounded-2xl border border-slate-800 transition">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="px-2.5 py-1 rounded-md text-[10px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 uppercase">SENSOR</span>
+                            <i data-lucide="waves" class="w-5 h-5 text-cyan-400"></i>
+                        </div>
+                        <h4 class="text-lg font-bold text-white mb-2">Sensor DHT11 / DHT22</h4>
+                        <p class="text-sm text-slate-400">Converte variações físicas de temperatura e umidade relativa em um sinal digital codificado de 40 bits via pino dedicado.</p>
+                    </div>
+
+                    <!-- Módulo RTC DS3231 -->
+                    <div class="circuit-item sensor glass-panel p-6 rounded-2xl border border-slate-800 transition">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="px-2.5 py-1 rounded-md text-[10px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 uppercase">SENSOR / RTC</span>
+                            <i data-lucide="clock" class="w-5 h-5 text-cyan-400"></i>
+                        </div>
+                        <h4 class="text-lg font-bold text-white mb-2">Módulo RTC DS3231</h4>
+                        <p class="text-sm text-slate-400">Relógio em Tempo Real de alta precisão com cristal interno compesado por temperatura. Fornece o carimbo de data e hora exatos.</p>
+                    </div>
+
+                    <!-- Display OLED SSD1306 -->
+                    <div class="circuit-item atuador glass-panel p-6 rounded-2xl border border-slate-800 transition">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="px-2.5 py-1 rounded-md text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase">ATUADOR / EXIBIÇÃO</span>
+                            <i data-lucide="monitor" class="w-5 h-5 text-emerald-400"></i>
+                        </div>
+                        <h4 class="text-lg font-bold text-white mb-2">Display OLED 0.96" SSD1306</h4>
+                        <p class="text-sm text-slate-400">Interface Homem-Máquina visual. Exibe em matriz de 128x64 pixels a temperatura, umidade, data, hora e ícones de status.</p>
+                    </div>
+
+                    <!-- Matriz de LEDs -->
+                    <div class="circuit-item atuador glass-panel p-6 rounded-2xl border border-slate-800 transition">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="px-2.5 py-1 rounded-md text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase">ATUADOR SINALIZADOR</span>
+                            <i data-lucide="lightbulb" class="w-5 h-5 text-amber-400"></i>
+                        </div>
+                        <h4 class="text-lg font-bold text-white mb-2">LEDs Indicadores de Faixa</h4>
+                        <p class="text-sm text-slate-400">Sinalização luminosa de estado sólido (Verde: Ideal, Amarelo: Alerta/Atenção, Vermelho: Crítico/Fora de faixa).</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO SIMULADOR DINÂMICO E FLUXOGRAMA INTERATIVO -->
+        <section id="simulador" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-12">
+                <h2 class="text-xs font-mono text-emerald-400 tracking-wider uppercase">03. Interatividade em Tempo Real</h2>
+                <p class="text-3xl font-bold text-white mt-1">Simulador de Circuito & Fluxograma</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                
+                <!-- PAINEL DE CONTROLE E REPOSTA DO CIRCUITO (ESQUERDA) -->
+                <div class="lg:col-span-6 glass-panel p-6 sm:p-8 rounded-2xl border border-slate-800 space-y-6">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                        <h3 class="font-bold text-white flex items-center gap-2">
+                            <i data-lucide="sliders" class="w-5 h-5 text-emerald-400"></i> Controles do Simulador
+                        </h3>
+                        <span class="text-xs font-mono px-2 py-1 bg-emerald-500/10 text-emerald-400 rounded">HARDWARE VIRTUAL</span>
+                    </div>
+
+                    <!-- Sliders de Temperatura e Umidade -->
+                    <div class="space-y-6">
+                        <!-- Temp Slider -->
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-sm">
+                                <label for="temp-range" class="font-medium text-slate-300 flex items-center gap-2">
+                                    <i data-lucide="thermometer" class="w-4 h-4 text-emerald-400"></i> Temperatura Simulada:
+                                </label>
+                                <span id="temp-val" class="font-mono font-bold text-emerald-400 text-base">24.0 °C</span>
+                            </div>
+                            <input type="range" id="temp-range" min="10" max="45" value="24" step="0.5" 
+                                class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+                            <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+                                <span>10°C (Frio)</span>
+                                <span>Ideal: 18°C - 28°C</span>
+                                <span>45°C (Quente)</span>
+                            </div>
+                        </div>
+
+                        <!-- Humidity Slider -->
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-sm">
+                                <label for="hum-range" class="font-medium text-slate-300 flex items-center gap-2">
+                                    <i data-lucide="droplets" class="w-4 h-4 text-cyan-400"></i> Umidade Simulada (%RH):
+                                </label>
+                                <span id="hum-val" class="font-mono font-bold text-cyan-400 text-base">60 %</span>
+                            </div>
+                            <input type="range" id="hum-range" min="20" max="95" value="60" step="1" 
+                                class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-500">
+                            <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+                                <span>20% (Seco)</span>
+                                <span>Ideal: 50% - 75%</span>
+                                <span>95% (Saturado)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SIMULAÇÃO DAS SAÍDAS DE HARDWARE -->
+                    <div class="pt-4 border-t border-slate-800 space-y-4">
+                        <span class="text-xs font-mono text-slate-400 block uppercase tracking-wider">Resposta do Hardware Embarcado:</span>
+                        
+                        <!-- SIMULADOR DISPLAY OLED -->
+                        <div class="oled-screen p-4 rounded-xl flex flex-col justify-between h-36 relative overflow-hidden">
+                            <!-- RTC Header no OLED -->
+                            <div class="flex justify-between text-[11px] border-b border-cyan-900/60 pb-1">
+                                <span>ESTUFA MONITOR</span>
+                                <span id="oled-time" class="font-bold">14:32:05</span>
+                            </div>
+                            <!-- Main Data Display -->
+                            <div class="grid grid-cols-2 gap-2 my-auto">
+                                <div>
+                                    <span class="text-[10px] block text-cyan-600">TEMP</span>
+                                    <span id="oled-temp" class="text-xl font-bold">24.0°C</span>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] block text-cyan-600">UMIDADE</span>
+                                    <span id="oled-hum" class="text-xl font-bold">60%</span>
+                                </div>
+                            </div>
+                            <!-- Footer Status Bar -->
+                            <div class="flex justify-between items-center text-[10px] pt-1 border-t border-cyan-900/60">
+                                <span id="oled-status-text">STATUS: NORMAL</span>
+                                <span id="oled-date">27/10/2026</span>
+                            </div>
+                        </div>
+
+                        <!-- SIMULADOR PAINEL DE LEDS -->
+                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex items-center justify-around">
+                            <!-- LED Verde -->
+                            <div class="flex flex-col items-center gap-1.5">
+                                <div id="led-green" class="w-5 h-5 rounded-full bg-emerald-950 border border-emerald-800 transition-all duration-300"></div>
+                                <span class="text-[10px] font-mono text-slate-400">VERDE (Ideal)</span>
+                            </div>
+                            <!-- LED Amarelo -->
+                            <div class="flex flex-col items-center gap-1.5">
+                                <div id="led-yellow" class="w-5 h-5 rounded-full bg-amber-950 border border-amber-800 transition-all duration-300"></div>
+                                <span class="text-[10px] font-mono text-slate-400">AMARELO (Alerta)</span>
+                            </div>
+                            <!-- LED Vermelho -->
+                            <div class="flex flex-col items-center gap-1.5">
+                                <div id="led-red" class="w-5 h-5 rounded-full bg-rose-950 border border-rose-800 transition-all duration-300"></div>
+                                <span class="text-[10px] font-mono text-slate-400">VERMELHO (Crítico)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FLUXOGRAMA DE FUNCIONAMENTO (DIREITA) -->
+                <div class="lg:col-span-6 glass-panel p-6 sm:p-8 rounded-2xl border border-slate-800 space-y-4">
+                    <h3 class="font-bold text-white flex items-center gap-2 border-b border-slate-800 pb-4">
+                        <i data-lucide="git-merge" class="w-5 h-5 text-emerald-400"></i> Fluxograma de Lógica de Controle
                     </h3>
+                    
+                    <p class="text-xs text-slate-400">Clique em qualquer etapa para destacar o comportamento do sistema:</p>
 
-                </div>
+                    <div class="space-y-3 font-mono text-xs">
+                        <!-- Step 1 -->
+                        <div class="flow-step p-3 rounded-xl bg-slate-900 border border-slate-800 hover:border-emerald-500/50 transition cursor-pointer" data-step="1">
+                            <div class="flex items-center gap-3">
+                                <span class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">1</span>
+                                <div>
+                                    <span class="text-white font-semibold block">POWER-ON & INICIALIZAÇÃO</span>
+                                    <span class="text-slate-400 text-[11px]">Inicializa barramento I²C (0x3C OLED, 0x68 RTC) e pino DHT</span>
+                                </div>
+                            </div>
+                        </div>
 
+                        <!-- Step 2 -->
+                        <div class="flow-step p-3 rounded-xl bg-slate-900 border border-slate-800 hover:border-emerald-500/50 transition cursor-pointer" data-step="2">
+                            <div class="flex items-center gap-3">
+                                <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold">2</span>
+                                <div>
+                                    <span class="text-white font-semibold block">AQUISIÇÃO DE DADOS</span>
+                                    <span class="text-slate-400 text-[11px]">Lê timestamp do DS3231 e quadro de 40 bits do sensor DHT</span>
+                                </div>
+                            </div>
+                        </div>
 
-                <div>
+                        <!-- Step 3 -->
+                        <div class="flow-step p-3 rounded-xl bg-slate-900 border border-slate-800 hover:border-emerald-500/50 transition cursor-pointer" data-step="3">
+                            <div class="flex items-center gap-3">
+                                <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold">3</span>
+                                <div>
+                                    <span class="text-white font-semibold block">COMPARAÇÃO DE LIMITES</span>
+                                    <span class="text-slate-400 text-[11px]">Avalia se (18°C &le; Temp &le; 28°C) e (50% &le; Hum &le; 75%)</span>
+                                </div>
+                            </div>
+                        </div>
 
-                    <span>
-                        ANO
-                    </span>
+                        <!-- Step 4 -->
+                        <div class="flow-step p-3 rounded-xl bg-slate-900 border border-slate-800 hover:border-emerald-500/50 transition cursor-pointer" data-step="4">
+                            <div class="flex items-center gap-3">
+                                <span class="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">4</span>
+                                <div>
+                                    <span class="text-white font-semibold block">SINALIZAÇÃO E DISPLAY</span>
+                                    <span class="text-slate-400 text-[11px]">Atualiza OLED com telemetria e comuta o nível lógico dos LEDs</span>
+                                </div>
+                            </div>
+                        </div>
 
-                    <strong id="anoProjeto">
-                        2026
-                    </strong>
-
+                        <!-- Step 5 -->
+                        <div class="flow-step p-3 rounded-xl bg-slate-900 border border-slate-800 hover:border-emerald-500/50 transition cursor-pointer" data-step="5">
+                            <div class="flex items-center gap-3">
+                                <span class="w-6 h-6 rounded-full bg-slate-700 text-slate-300 flex items-center justify-center font-bold">5</span>
+                                <div>
+                                    <span class="text-white font-semibold block">DELAY CICLICO (2000ms)</span>
+                                    <span class="text-slate-400 text-[11px]">Aguardar ciclo mínimo de estabilização do sensor térmico</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
             </div>
+        </section>
 
-        </footer>
+        <!-- SEÇÃO COMPONENTES TÉCNICOS DETALHADOS -->
+        <section id="componentes" class="py-16 bg-slate-950/60 border-y border-slate-800/80">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="mb-12">
+                    <h2 class="text-xs font-mono text-emerald-400 tracking-wider uppercase">04. Especificação de Hardware</h2>
+                    <p class="text-3xl font-bold text-white mt-1">Componentes Técnicos e Justificativa de Escolha</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <!-- Componente 1: ATmega328P -->
+                    <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                <i data-lucide="cpu" class="w-5 h-5 text-emerald-400"></i> Arduino Uno / Nano (ATmega328P)
+                            </h3>
+                            <span class="text-xs font-mono text-slate-400">Microcontrolador</span>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-mono text-emerald-400 uppercase font-semibold">Funcionamento Técnico:</h4>
+                            <p class="text-sm text-slate-300 mt-1">Microcontrolador RISC de 8 bits operando a 16 MHz. Gerencia entradas/saídas por registradores internos de I/O e possui periferia TWI para barramento I²C.</p>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-mono text-cyan-400 uppercase font-semibold">Justificativa da Escolha:</h4>
+                            <p class="text-sm text-slate-400 mt-1">Baixo custo, excelente estabilidade para temporizações de leitura e compatibilidade universal com bibliotecas de instrumentação.</p>
+                        </div>
+                    </div>
+
+                    <!-- Componente 2: DHT11/22 -->
+                    <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                <i data-lucide="thermometer-snowflake" class="w-5 h-5 text-cyan-400"></i> Sensor DHT11 / DHT22
+                            </h3>
+                            <span class="text-xs font-mono text-slate-400">Sensor Termo-Higrométrico</span>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-mono text-emerald-400 uppercase font-semibold">Funcionamento Técnico:</h4>
+                            <p class="text-sm text-slate-300 mt-1">Integra um termistor NTC para temperatura e um sensor capacitivo de umidade. Converte medições internas em um sinal digital digital pré-calibrado.</p>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-mono text-cyan-400 uppercase font-semibold">Justificativa da Escolha:</h4>
+                            <p class="text-sm text-slate-400 mt-1">Evita a necessidade de pontes de medição externas ou conversores A/D dedicados, enviando pacotes imunes a ruídos por pino único.</p>
+                        </div>
+                    </div>
+
+                    <!-- Componente 3: Módulo DS3231 -->
+                    <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                <i data-lucide="clock" class="w-5 h-5 text-purple-400"></i> Módulo RTC DS3231
+                            </h3>
+                            <span class="text-xs font-mono text-slate-400">Real Time Clock</span>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-mono text-emerald-400 uppercase font-semibold">Funcionamento Técnico:</h4>
+                            <p class="text-sm text-slate-300 mt-1">Relógio de tempo real munido de cristal interno TCXO compensado por temperatura. Mantém contagem de tempo via bateria CR2032.</p>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-mono text-cyan-400 uppercase font-semibold">Justificativa da Escolha:</h4>
+                            <p class="text-sm text-slate-400 mt-1">Garante carimbo do tempo das leituras mesmo na ausência de sinal de internet (NTP) e durante reinicializações do sistema.</p>
+                        </div>
+                    </div>
+
+                    <!-- Componente 4: OLED SSD1306 -->
+                    <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                <i data-lucide="tv" class="w-5 h-5 text-amber-400"></i> Display OLED 0.96" SSD1306
+                            </h3>
+                            <span class="text-xs font-mono text-slate-400">Interface Gráfica</span>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-mono text-emerald-400 uppercase font-semibold">Funcionamento Técnico:</h4>
+                            <p class="text-sm text-slate-300 mt-1">Matriz de 128x64 pixels com tecnologia emissiva orgânica (dispensa backlight). Comunicação via endereço I²C 0x3C.</p>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-mono text-cyan-400 uppercase font-semibold">Justificativa da Escolha:</h4>
+                            <p class="text-sm text-slate-400 mt-1">Altíssimo contraste visual, ângulo de visão amplo e consumo elétrico irrisório comparado a telas LCD tradicionais.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO DA EQUIPE DO PROJETO -->
+        <section id="equipe" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-12">
+                <h2 class="text-xs font-mono text-emerald-400 tracking-wider uppercase">05. Integrantes do Grupo</h2>
+                <p class="text-3xl font-bold text-white mt-1">Equipe de Desenvolvimento</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                
+                <!-- Membro 1 -->
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 text-center space-y-4 relative group glass-panel-hover transition">
+                    <div class="relative w-24 h-24 mx-auto rounded-full overflow-hidden border-2 border-emerald-500/40 bg-slate-800 flex items-center justify-center">
+                        <img id="avatar-1" src="https://placehold.co/150x150/1e293b/10b981?text=Aluno+1" alt="Foto do Integrante" class="w-full h-full object-cover">
+                        <label for="upload-1" class="absolute inset-0 bg-slate-950/70 text-white text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer">
+                            Alterar Foto
+                        </label>
+                        <input type="file" id="upload-1" accept="image/*" class="hidden" onchange="previewImage(event, 'avatar-1')">
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-white">Nome do Aluno 1</h3>
+                        <p class="text-xs font-mono text-emerald-400">RA: 12345678</p>
+                    </div>
+                    <span class="inline-block px-3 py-1 rounded-full bg-slate-800 text-slate-300 text-xs font-medium border border-slate-700">
+                        Líder & Firmware C++
+                    </span>
+                </div>
+
+                <!-- Membro 2 -->
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 text-center space-y-4 relative group glass-panel-hover transition">
+                    <div class="relative w-24 h-24 mx-auto rounded-full overflow-hidden border-2 border-emerald-500/40 bg-slate-800 flex items-center justify-center">
+                        <img id="avatar-2" src="https://placehold.co/150x150/1e293b/06b6d4?text=Aluno+2" alt="Foto do Integrante" class="w-full h-full object-cover">
+                        <label for="upload-2" class="absolute inset-0 bg-slate-950/70 text-white text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer">
+                            Alterar Foto
+                        </label>
+                        <input type="file" id="upload-2" accept="image/*" class="hidden" onchange="previewImage(event, 'avatar-2')">
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-white">Nome do Aluno 2</h3>
+                        <p class="text-xs font-mono text-cyan-400">RA: 23456789</p>
+                    </div>
+                    <span class="inline-block px-3 py-1 rounded-full bg-slate-800 text-slate-300 text-xs font-medium border border-slate-700">
+                        Hardware & Eletrônica
+                    </span>
+                </div>
+
+                <!-- Membro 3 -->
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 text-center space-y-4 relative group glass-panel-hover transition">
+                    <div class="relative w-24 h-24 mx-auto rounded-full overflow-hidden border-2 border-emerald-500/40 bg-slate-800 flex items-center justify-center">
+                        <img id="avatar-3" src="https://placehold.co/150x150/1e293b/a855f7?text=Aluno+3" alt="Foto do Integrante" class="w-full h-full object-cover">
+                        <label for="upload-3" class="absolute inset-0 bg-slate-950/70 text-white text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer">
+                            Alterar Foto
+                        </label>
+                        <input type="file" id="upload-3" accept="image/*" class="hidden" onchange="previewImage(event, 'avatar-3')">
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-white">Nome do Aluno 3</h3>
+                        <p class="text-xs font-mono text-purple-400">RA: 34567890</p>
+                    </div>
+                    <span class="inline-block px-3 py-1 rounded-full bg-slate-800 text-slate-300 text-xs font-medium border border-slate-700">
+                        Instrumentação & Testes
+                    </span>
+                </div>
+
+                <!-- Membro 4 -->
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 text-center space-y-4 relative group glass-panel-hover transition">
+                    <div class="relative w-24 h-24 mx-auto rounded-full overflow-hidden border-2 border-emerald-500/40 bg-slate-800 flex items-center justify-center">
+                        <img id="avatar-4" src="https://placehold.co/150x150/1e293b/f59e0b?text=Aluno+4" alt="Foto do Integrante" class="w-full h-full object-cover">
+                        <label for="upload-4" class="absolute inset-0 bg-slate-950/70 text-white text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer">
+                            Alterar Foto
+                        </label>
+                        <input type="file" id="upload-4" accept="image/*" class="hidden" onchange="previewImage(event, 'avatar-4')">
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-white">Nome do Aluno 4</h3>
+                        <p class="text-xs font-mono text-amber-400">RA: 45678901</p>
+                    </div>
+                    <span class="inline-block px-3 py-1 rounded-full bg-slate-800 text-slate-300 text-xs font-medium border border-slate-700">
+                        Documentação & Web
+                    </span>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SEÇÃO DEMONSTRAÇÃO EM VÍDEO -->
+        <section id="demonstracao" class="py-16 bg-slate-950/60 border-y border-slate-800/80">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="mb-12">
+                    <h2 class="text-xs font-mono text-emerald-400 tracking-wider uppercase">06. Validação Prática</h2>
+                    <p class="text-3xl font-bold text-white mt-1">Vídeo de Demonstração do Protótipo</p>
+                </div>
+
+                <div class="max-w-4xl mx-auto glass-panel p-4 rounded-2xl border border-slate-800">
+                    <!-- Responsive Video Container -->
+                    <div class="relative w-full pb-[56.25%] h-0 rounded-xl overflow-hidden bg-black">
+                        <iframe class="absolute top-0 left-0 w-full h-full" 
+                                src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" 
+                                title="Vídeo de Demonstração do Projeto de Estufa" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                    <p class="text-xs text-center text-slate-500 mt-3 font-mono">
+                        * Substitua o ID da URL do iFrame acima pelo link do vídeo do seu projeto gravado em bancada.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO CÓDIGO EMBUTIDO DO ARDUINO -->
+        <section id="codigo" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <h2 class="text-xs font-mono text-emerald-400 tracking-wider uppercase">07. Firmware Embarcado</h2>
+                    <p class="text-3xl font-bold text-white mt-1">Código-Fonte C++ (Arduino)</p>
+                </div>
+                <button id="copy-code-btn" class="px-4 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-sm font-semibold transition flex items-center gap-2">
+                    <i data-lucide="copy" class="w-4 h-4"></i> Copiar Código Completo
+                </button>
+            </div>
+
+            <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden">
+                <div class="bg-slate-900/80 px-6 py-3 border-b border-slate-800 flex items-center justify-between text-xs font-mono text-slate-400">
+                    <span class="flex items-center gap-2"><i data-lucide="file-code" class="w-4 h-4 text-emerald-400"></i> estufa_monitor.ino</span>
+                    <span>Placa: Arduino Uno / Nano (ATmega328P)</span>
+                </div>
+                <pre class="p-6 text-xs sm:text-sm font-mono text-slate-300 overflow-x-auto leading-relaxed max-h-[500px] overflow-y-auto"><code id="code-block">/*
+ * PROJETO: Sistema de Monitoramento Termo-Higrométrico para Estufas
+ * CURSO: Engenharia Elétrica
+ * COMPONENTES: Arduino, Sensor DHT, RTC DS3231, Display OLED SSD1306, LEDs
+ */
+
+#include &lt;Wire.h&gt;
+#include &lt;Adafruit_GFX.h&gt;
+#include &lt;Adafruit_SSD1306.h&gt;
+#include &lt;RTClib.h&gt;
+#include &lt;DHT.h&gt;
+
+// Configuração do Display OLED (128x64 I2C)
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+
+// Configuração do Sensor DHT
+#define DHTPIN 2
+#define DHTTYPE DHT11 // Alterar para DHT22 se aplicável
+DHT dht(DHTPIN, DHTTYPE);
+
+// Configuração do RTC DS3231
+RTC_DS3231 rtc;
+
+// Pinos dos LEDs Indicadores
+#define LED_VERDE 8
+#define LED_AMARELO 9
+#define LED_VERMELHO 10
+
+// Limites Operacionais de Engenharia
+const float TEMP_MIN = 18.0;
+const float TEMP_MAX = 28.0;
+const float HUM_MIN = 50.0;
+const float HUM_MAX = 75.0;
+
+void setup() {
+  Serial.begin(9600);
+  
+  pinMode(LED_VERDE, OUTPUT);
+  pinMode(LED_AMARELO, OUTPUT);
+  pinMode(LED_VERMELHO, OUTPUT);
+
+  // Inicialização do Sensor DHT e I2C
+  dht.begin();
+  
+  if (!rtc.begin()) {
+    Serial.println("Erro ao encontrar modulo RTC!");
+  }
+
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    Serial.println("Erro na alocação do OLED SSD1306");
+    for(;;);
+  }
+
+  display.clearDisplay();
+  display.setTextColor(WHITE);
+  display.setTextSize(1);
+  display.setCursor(10, 25);
+  display.print("ESTUFA TECH V1.0");
+  display.display();
+  delay(2000);
+}
+
+void loop() {
+  DateTime now = rtc.now();
+  float temp = dht.readTemperature();
+  float hum = dht.readHumidity();
+
+  if (isnan(temp) || isnan(hum)) {
+    Serial.println("Falha de leitura do sensor DHT!");
+    return;
+  }
+
+  // Avaliação do Estado do Microclima
+  bool tempIdeal = (temp >= TEMP_MIN && temp <= TEMP_MAX);
+  bool humIdeal = (hum >= HUM_MIN && hum <= HUM_MAX);
+
+  digitalWrite(LED_VERDE, LOW);
+  digitalWrite(LED_AMARELO, LOW);
+  digitalWrite(LED_VERMELHO, LOW);
+
+  if (tempIdeal && humIdeal) {
+    digitalWrite(LED_VERDE, HIGH); // Condição Perfeita
+  } else if (!tempIdeal && !humIdeal) {
+    digitalWrite(LED_VERMELHO, HIGH); // Ambas fora de faixa
+  } else {
+    digitalWrite(LED_AMARELO, HIGH); // Alerta parcial
+  }
+
+  // Renderização no Display OLED
+  display.clearDisplay();
+  
+  // Cabeçalho Horário
+  display.setCursor(0, 0);
+  display.print("HORA: ");
+  if(now.hour() < 10) display.print('0');
+  display.print(now.hour()); display.print(':');
+  if(now.minute() < 10) display.print('0');
+  display.print(now.minute());
+
+  display.drawLine(0, 10, 128, 10, WHITE);
+
+  // Exibição de Telemetria
+  display.setCursor(0, 20);
+  display.print("Temp: "); display.print(temp, 1); display.print(" C");
+  
+  display.setCursor(0, 36);
+  display.print("Umid: "); display.print(hum, 1); display.print(" %");
+
+  // Barra de Status Inferior
+  display.drawLine(0, 52, 128, 52, WHITE);
+  display.setCursor(0, 55);
+  if (tempIdeal && humIdeal) display.print("STATUS: IDEAL");
+  else display.print("STATUS: ALERTA!");
+
+  display.display();
+  delay(2000); // Intervalo de amostragem
+}</code></pre>
+            </div>
+        </section>
 
     </main>
 
+    <!-- FOOTER -->
+    <footer class="border-t border-slate-800 bg-slate-950 py-8 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 space-y-2">
+            <p>Projeto Desenvolvido para a Cadeira de Sistemas Embarcados / Instrumentação</p>
+            <p class="font-mono text-slate-400">Engenharia Elétrica &copy; 2026 - Todos os Direitos Reservados</p>
+        </div>
+    </footer>
 
-    <script src="script.js"></script>
+    <!-- SCRIPT JS INTERATIVO DO SITE -->
+    <script>
+        // Inicializar ícones do Lucide
+        lucide.createIcons();
 
+        // Menu Mobile Toggle
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Lógica do Simulador Interativo de Temperatura e Umidade
+        const tempRange = document.getElementById('temp-range');
+        const humRange = document.getElementById('hum-range');
+
+        const tempVal = document.getElementById('temp-val');
+        const humVal = document.getElementById('hum-val');
+
+        const oledTemp = document.getElementById('oled-temp');
+        const oledHum = document.getElementById('oled-hum');
+        const oledStatusText = document.getElementById('oled-status-text');
+
+        const ledGreen = document.getElementById('led-green');
+        const ledYellow = document.getElementById('led-yellow');
+        const ledRed = document.getElementById('led-red');
+
+        function updateSimulation() {
+            const temp = parseFloat(tempRange.value);
+            const hum = parseInt(humRange.value);
+
+            // Atualiza Rótulos
+            tempVal.textContent = temp.toFixed(1) + ' °C';
+            humVal.textContent = hum + ' %';
+
+            oledTemp.textContent = temp.toFixed(1) + '°C';
+            oledHum.textContent = hum + '%';
+
+            // Faixas ideais: Temp 18 a 28°C / Umidade 50 a 75%
+            const isTempIdeal = (temp >= 18.0 && temp <= 28.0);
+            const isHumIdeal = (hum >= 50 && hum <= 75);
+
+            // Reseta LEDs
+            ledGreen.className = "w-5 h-5 rounded-full bg-emerald-950 border border-emerald-800 transition-all duration-300";
+            ledYellow.className = "w-5 h-5 rounded-full bg-amber-950 border border-amber-800 transition-all duration-300";
+            ledRed.className = "w-5 h-5 rounded-full bg-rose-950 border border-rose-800 transition-all duration-300";
+
+            if (isTempIdeal && isHumIdeal) {
+                // Estado OK
+                ledGreen.className = "w-5 h-5 rounded-full bg-emerald-500 led-glow-green border border-emerald-200 transition-all duration-300";
+                oledStatusText.textContent = "STATUS: IDEAL";
+            } else if (!isTempIdeal && !isHumIdeal) {
+                // Estado Crítico
+                ledRed.className = "w-5 h-5 rounded-full bg-rose-500 led-glow-red border border-rose-200 transition-all duration-300";
+                oledStatusText.textContent = "STATUS: CRITICO!";
+            } else {
+                // Estado Alerta Parcial
+                ledYellow.className = "w-5 h-5 rounded-full bg-amber-400 led-glow-yellow border border-amber-100 transition-all duration-300";
+                oledStatusText.textContent = "STATUS: ALERTA!";
+            }
+        }
+
+        tempRange.addEventListener('input', updateSimulation);
+        humRange.addEventListener('input', updateSimulation);
+
+        // Relógio Virtual do OLED
+        function updateOledClock() {
+            const now = new Date();
+            const hrs = String(now.getHours()).padStart(2, '0');
+            const mins = String(now.getMinutes()).padStart(2, '0');
+            const secs = String(now.getSeconds()).padStart(2, '0');
+            
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const year = now.getFullYear();
+
+            document.getElementById('oled-time').textContent = `${hrs}:${mins}:${secs}`;
+            document.getElementById('oled-date').textContent = `${day}/${month}/${year}`;
+        }
+        setInterval(updateOledClock, 1000);
+        updateOledClock();
+        updateSimulation();
+
+        // Filtro da Seção do Circuito
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const circuitItems = document.querySelectorAll('.circuit-item');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => {
+                    b.classList.remove('bg-emerald-500', 'text-slate-950', 'active');
+                    b.classList.add('glass-panel', 'text-slate-300');
+                });
+
+                btn.classList.remove('glass-panel', 'text-slate-300');
+                btn.classList.add('bg-emerald-500', 'text-slate-950', 'active');
+
+                const filter = btn.getAttribute('data-filter');
+
+                circuitItems.forEach(item => {
+                    if (filter === 'all' || item.classList.contains(filter)) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Troca de Foto dos Integrantes (Preview Local)
+        function previewImage(event, avatarId) {
+            const reader = new FileReader();
+            reader.onload = function(){
+                const output = document.getElementById(avatarId);
+                output.src = reader.result;
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+        // Copiar Código do Arduino para a Área de Transferência
+        document.getElementById('copy-code-btn').addEventListener('click', function() {
+            const codeText = document.getElementById('code-block').innerText;
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = codeText;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+
+            const btn = this;
+            btn.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> Copiado!`;
+            lucide.createIcons();
+            
+            setTimeout(() => {
+                btn.innerHTML = `<i data-lucide="copy" class="w-4 h-4"></i> Copiar Código Completo`;
+                lucide.createIcons();
+            }, 2000);
+        });
+    </script>
 </body>
-
 </html>
-
