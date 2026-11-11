@@ -11,7 +11,7 @@
     <!-- Google Fonts: Inter & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -34,7 +34,7 @@
                         }
                     },
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        sans: ['Nunito', 'sans-serif'],
                         mono: ['JetBrains Mono', 'monospace'],
                     }
                 }
@@ -46,7 +46,7 @@
         body {
             background-color: #0B0F17;
             color: #E2E8F0;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Nunito', sans-serif;
         }
 
         /* Glassmorphic utilities */
@@ -95,6 +95,44 @@
         .led-glow-red {
             box-shadow: 0 0 12px #F43F5E, inset 0 0 4px #FECDD3;
         }
+
+        /* Tema claro com tipografia arredondada */
+        body {
+            background: #f4f7fb !important;
+            color: #243247 !important;
+            font-family: 'Nunito', sans-serif !important;
+        }
+        .glass-panel {
+            background: rgba(255,255,255,.92) !important;
+            border: 1px solid #dce4ee !important;
+            box-shadow: 0 8px 24px rgba(31, 50, 75, .06);
+            backdrop-filter: blur(10px);
+        }
+        .glass-panel-hover:hover {
+            border-color: rgba(16,185,129,.55) !important;
+            box-shadow: 0 10px 28px rgba(16,185,129,.12);
+        }
+        body [class*="text-white"], body [class*="text-slate-200"],
+        body [class*="text-slate-300"] { color: #26364b !important; }
+        body [class*="text-slate-400"] { color: #5e6d80 !important; }
+        body [class*="text-slate-500"] { color: #718096 !important; }
+        body [class*="bg-slate-950"], body [class*="bg-slate-900"],
+        body [class*="bg-slate-800"] { background-color: #edf2f8 !important; }
+        body [class*="border-slate-800"], body [class*="border-slate-700"] {
+            border-color: #dce4ee !important;
+        }
+        nav.glass-panel { background: rgba(255,255,255,.96) !important; }
+        .oled-screen {
+            background-color: #05080d !important;
+            color: #06b6d4 !important;
+            border-color: #64748b !important;
+        }
+        pre, code { font-family: 'JetBrains Mono', monospace !important; }
+        h1, h2, h3, h4, p, a, button, label, span { letter-spacing: .005em; }
+        h1, h2, h3 { letter-spacing: -.025em; }
+        ::-webkit-scrollbar-track { background: #edf2f8; }
+        ::-webkit-scrollbar-thumb { background: #c3cedb; border-radius: 8px; }
+        ::-webkit-scrollbar-thumb:hover { background: #10b981; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased selection:bg-brand-accent selection:text-black">
@@ -119,7 +157,6 @@
                 <a href="#simulador" class="hover:text-emerald-400 transition">Simulador & Fluxograma</a>
                 <a href="#componentes" class="hover:text-emerald-400 transition">Componentes</a>
                 <a href="#equipe" class="hover:text-emerald-400 transition">Equipe</a>
-                <a href="#demonstracao" class="hover:text-emerald-400 transition">Demonstração</a>
                 <a href="#codigo" class="px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20 transition flex items-center gap-2">
                     <i data-lucide="code" class="w-4 h-4"></i> Código Arduino
                 </a>
@@ -138,7 +175,6 @@
             <a href="#simulador" class="block py-2 text-slate-300 hover:text-emerald-400">Simulador & Fluxograma</a>
             <a href="#componentes" class="block py-2 text-slate-300 hover:text-emerald-400">Componentes</a>
             <a href="#equipe" class="block py-2 text-slate-300 hover:text-emerald-400">Equipe</a>
-            <a href="#demonstracao" class="block py-2 text-slate-300 hover:text-emerald-400">Demonstração</a>
             <a href="#codigo" class="block py-2 text-emerald-400">Código Arduino</a>
         </div>
     </nav>
@@ -592,7 +628,7 @@
                 <p class="text-3xl font-bold text-white mt-1">Equipe de Desenvolvimento</p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 max-w-4xl gap-6">
                 
                 <!-- Membro 1 -->
                 <div class="glass-panel p-6 rounded-2xl border border-slate-800 text-center space-y-4 relative group glass-panel-hover transition">
@@ -630,68 +666,7 @@
                     </span>
                 </div>
 
-                <!-- Membro 3 -->
-                <div class="glass-panel p-6 rounded-2xl border border-slate-800 text-center space-y-4 relative group glass-panel-hover transition">
-                    <div class="relative w-24 h-24 mx-auto rounded-full overflow-hidden border-2 border-emerald-500/40 bg-slate-800 flex items-center justify-center">
-                        <img id="avatar-3" src="https://placehold.co/150x150/1e293b/a855f7?text=Aluno+3" alt="Foto do Integrante" class="w-full h-full object-cover">
-                        <label for="upload-3" class="absolute inset-0 bg-slate-950/70 text-white text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer">
-                            Alterar Foto
-                        </label>
-                        <input type="file" id="upload-3" accept="image/*" class="hidden" onchange="previewImage(event, 'avatar-3')">
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-bold text-white">Nome do Aluno 3</h3>
-                        <p class="text-xs font-mono text-purple-400">RA: 34567890</p>
-                    </div>
-                    <span class="inline-block px-3 py-1 rounded-full bg-slate-800 text-slate-300 text-xs font-medium border border-slate-700">
-                        Instrumentação & Testes
-                    </span>
-                </div>
 
-                <!-- Membro 4 -->
-                <div class="glass-panel p-6 rounded-2xl border border-slate-800 text-center space-y-4 relative group glass-panel-hover transition">
-                    <div class="relative w-24 h-24 mx-auto rounded-full overflow-hidden border-2 border-emerald-500/40 bg-slate-800 flex items-center justify-center">
-                        <img id="avatar-4" src="https://placehold.co/150x150/1e293b/f59e0b?text=Aluno+4" alt="Foto do Integrante" class="w-full h-full object-cover">
-                        <label for="upload-4" class="absolute inset-0 bg-slate-950/70 text-white text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer">
-                            Alterar Foto
-                        </label>
-                        <input type="file" id="upload-4" accept="image/*" class="hidden" onchange="previewImage(event, 'avatar-4')">
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-bold text-white">Nome do Aluno 4</h3>
-                        <p class="text-xs font-mono text-amber-400">RA: 45678901</p>
-                    </div>
-                    <span class="inline-block px-3 py-1 rounded-full bg-slate-800 text-slate-300 text-xs font-medium border border-slate-700">
-                        Documentação & Web
-                    </span>
-                </div>
-
-            </div>
-        </section>
-
-        <!-- SEÇÃO DEMONSTRAÇÃO EM VÍDEO -->
-        <section id="demonstracao" class="py-16 bg-slate-950/60 border-y border-slate-800/80">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="mb-12">
-                    <h2 class="text-xs font-mono text-emerald-400 tracking-wider uppercase">06. Validação Prática</h2>
-                    <p class="text-3xl font-bold text-white mt-1">Demonstração de Demonstração do Protótipo</p>
-                </div>
-
-                <div class="max-w-4xl mx-auto glass-panel p-4 rounded-2xl border border-slate-800">
-                    <!-- Responsive Video Container -->
-                    <div class="relative w-full pb-[56.25%] h-0 rounded-xl overflow-hidden bg-black">
-                        <iframe class="absolute top-0 left-0 w-full h-full" 
-                                src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" 
-                                title="Demonstração de Demonstração do Projeto de Estufa" 
-                                frameborder="0" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowfullscreen>
-                        </iframe>
-                    </div>
-                    <p class="text-xs text-center text-slate-500 mt-3 font-mono">
-                        * Substitua o ID da URL do iFrame acima pelo link do vídeo do seu projeto gravado em bancada.
-                    </p>
-                </div>
             </div>
         </section>
 
@@ -699,7 +674,7 @@
         <section id="codigo" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
-                    <h2 class="text-xs font-mono text-emerald-400 tracking-wider uppercase">07. Firmware Embarcado</h2>
+                    <h2 class="text-xs font-mono text-emerald-400 tracking-wider uppercase">06. Firmware Embarcado</h2>
                     <p class="text-3xl font-bold text-white mt-1">Código-Fonte C++ (Arduino)</p>
                 </div>
                 <button id="copy-code-btn" class="px-4 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-sm font-semibold transition flex items-center gap-2">
