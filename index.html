@@ -694,104 +694,187 @@
  * SAÍDAS: Display OLED SSD1306, LED verde e LED vermelho
  */
 
-#include &lt;Wire.h&gt;
-#include &lt;Adafruit_GFX.h&gt;
-#include &lt;Adafruit_SSD1306.h&gt;
-#include &lt;DHT.h&gt;
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#include <DHT.h>
 
-#define SCREEN_WIDTH 128
-#define SCREEN_HEIGHT 64
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+// ======================================
+// CONFIGURACAO DO DISPLAY OLED
+// ======================================
+
+#define LARGURA_TELA 128
+#define ALTURA_TELA 64
+#define OLED_RESET -1
+
+Adafruit_SSD1306 display(LARGURA_TELA, ALTURA_TELA, &Wire, OLED_RESET);
+
+// ======================================
+// CONFIGURACAO DO DHT11
+// ======================================
 
 #define DHTPIN 2
 #define DHTTYPE DHT11
+
 DHT dht(DHTPIN, DHTTYPE);
 
-#define GAS_PIN A0
-#define LED_VERDE 8
-#define LED_VERMELHO 9
+// ======================================
+// PINOS DOS COMPONENTES
+// ======================================
 
-// Ajuste os limites conforme os testes e a calibração do protótipo.
-const float LIMITE_TEMPERATURA = 30.0;
-const int LIMITE_GAS = 400;
+#define PIN_LED_VERDE 4
+#define PIN_LED_VERMELHO 5
+
+// ======================================
+// LIMITES
+// ======================================
+
+const float TEMP_LIMITE = 23.5;
+
+// ======================================
+// VARIAVEIS
+// ======================================
+
+float temperatura;
+float umidade;
+
+bool alertaTemp;
+bool falhaDHT;
+bool estadoAlerta;
+
+// ======================================
+// SETUP
+// ======================================
 
 void setup() {
   Serial.begin(9600);
 
-  pinMode(LED_VERDE, OUTPUT);
-  pinMode(LED_VERMELHO, OUTPUT);
+  pinMode(PIN_LED_VERDE, OUTPUT);
+  pinMode(PIN_LED_VERMELHO, OUTPUT);
+
+  digitalWrite(PIN_LED_VERDE, LOW);
+  digitalWrite(PIN_LED_VERMELHO, LOW);
 
   dht.begin();
 
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
-    Serial.println("Falha ao iniciar o display OLED.");
-    while (true) {
+    Serial.println("Erro ao iniciar OLED!");
+    for (;;) {
     }
   }
 
   display.clearDisplay();
   display.setTextColor(SSD1306_WHITE);
   display.setTextSize(1);
-  display.setCursor(10, 25);
+
+  display.setCursor(10, 15);
   display.println("MONITOR AMBIENTAL");
+
+  display.setCursor(20, 35);
+  display.println("INICIALIZANDO...");
+
   display.display();
-  delay(2000);
+
+    delay(2000);
 }
 
-void loop() {
-  float temperatura = dht.readTemperature();
-  float umidade = dht.readHumidity();
-  int nivelGas = analogRead(GAS_PIN);
+// ======================================
+// LOOP PRINCIPAL
+// ======================================
 
-  if (isnan(temperatura) || isnan(umidade)) {
-    Serial.println("Falha na leitura do DHT11.");
-    digitalWrite(LED_VERDE, LOW);
-    digitalWrite(LED_VERMELHO, HIGH);
-    return;
+void loop() {
+  // Leitura dos sensores
+  temperatura = dht.readTemperature();
+  umidade = dht.readHumidity();
+
+  // Verificacao do DHT11
+  falhaDHT = isnan(temperatura) || isnan(umidade);
+
+  // Verificacao da temperatura
+  alertaTemp = false;
+
+  if (!falhaDHT) {
+    if (temperatura >= TEMP_LIMITE) {
+      alertaTemp = true;
+    }
   }
 
-  bool alertaTemperatura = temperatura > LIMITE_TEMPERATURA;
-  bool alertaGas = nivelGas > LIMITE_GAS;
-  bool estadoAlerta = alertaTemperatura || alertaGas;
+  // Estado geral do sistema (baseado apenas na temperatura e falha do DHT)
+  estadoAlerta = alertaTemp || falhaDHT;
 
-  digitalWrite(LED_VERDE, estadoAlerta ? LOW : HIGH);
-  digitalWrite(LED_VERMELHO, estadoAlerta ? HIGH : LOW);
+  // Controle dos LEDs
+  if (estadoAlerta) {
+    digitalWrite(PIN_LED_VERDE, LOW);
+    digitalWrite(PIN_LED_VERMELHO, HIGH);
+  } else {
+    digitalWrite(PIN_LED_VERDE, HIGH);
+    digitalWrite(PIN_LED_VERMELHO, LOW);
+  }
+
+  // ======================================
+  // ATUALIZACAO DO DISPLAY
+  // ======================================
 
   display.clearDisplay();
+
+  display.setTextColor(SSD1306_WHITE);
   display.setTextSize(1);
+
   display.setCursor(0, 0);
   display.println("MONITOR AMBIENTAL");
-  display.drawLine(0, 10, 128, 10, SSD1306_WHITE);
 
-  display.setCursor(0, 17);
-  display.print("Temp: ");
-  display.print(temperatura, 1);
-  display.println(" C");
+  display.drawLine(0, 10, 127, 10, SSD1306_WHITE);
 
-  display.setCursor(0, 30);
-  display.print("Umidade: ");
-  display.print(umidade, 0);
-  display.println(" %");
+  // Temperatura
+  display.setCursor(0, 18);
+  if (falhaDHT) {
+    display.println("DHT11: ERRO");
+  } else {
+    display.print("Temp: ");
+    display.print(temperatura, 1);
+    display.println(" C");
+  }
 
-  display.setCursor(0, 43);
-  display.print("Gas/Fumaca: ");
-  display.print(nivelGas);
-  display.println("/1023");
+  // Umidade
+  display.setCursor(0, 32);
+  if (falhaDHT) {
+    display.println("Umidade: --");
+  } else {
+    display.print("Umidade: ");
+    display.print(umidade, 1);
+    display.println(" %");
+  }
 
-  display.drawLine(0, 55, 128, 55, SSD1306_WHITE);
-  display.setCursor(0, 57);
-  display.print(estadoAlerta ? "STATUS: ALERTA" : "STATUS: NORMAL");
+  // Estado geral
+  display.drawLine(0, 48, 127, 48, SSD1306_WHITE);
+
+  display.setCursor(0, 53);
+  if (falhaDHT) {
+    display.println("ERRO NO DHT11");
+  } else if (estadoAlerta) {
+    display.println("!!! ALERTA TEMP. !!!");
+  } else {
+    display.println("SISTEMA NORMAL");
+  }
 
   display.display();
 
+  // ======================================
+  // MONITOR SERIAL
+  // ======================================
+
+  Serial.println("----------------------");
   Serial.print("Temperatura: ");
-  Serial.print(temperatura);
-  Serial.print(" C | Umidade: ");
-  Serial.print(umidade);
-  Serial.print(" % | Gas/Fumaca: ");
-  Serial.println(nivelGas);
+  Serial.println(falhaDHT ? -1 : temperatura);
+
+  Serial.print("Umidade: ");
+  Serial.println(falhaDHT ? -1 : umidade);
+
+  Serial.print("Estado: ");
+  Serial.println(estadoAlerta ? "ALERTA" : "NORMAL");
 
   delay(2000);
+}
 }</code></pre>
             </div>
         </section>
